@@ -1,0 +1,3 @@
+[submodule "collectd/bmp180"]
+	path = collectd/bmp180
+	url = https://github.com/lexruee/bmp180.git
