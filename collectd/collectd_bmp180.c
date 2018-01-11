@@ -31,6 +31,17 @@ void read_bmp_data(char *hostname, int interval){
     bmp180_dump_eprom(bmp, &eprom);
     bmp180_set_oss(bmp, 1);
 
+    /* Flush stdout buffer:
+     * This needs to be done before *anything* is written to STDOUT! */
+    int status = setvbuf (stdout,
+         /* buf  = */ NULL,
+         /* mode = */ _IONBF, /* unbuffered */
+         /* size = */ 0);
+    if (status != 0){
+        perror ("Error in setvbuf(): fail to flush stdout buffer.");
+        exit (1);
+    }
+
     if(bmp != NULL){
         float t = bmp180_temperature(bmp);
         long p = bmp180_pressure(bmp);
