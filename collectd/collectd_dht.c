@@ -10,21 +10,22 @@
  * dht_error               value:GAUGE:0:U
  * */
 
-#include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <wiringPi.h>
 
 #define MAX_TIMINGS 85
 #define DHT_PIN 7
-int data[5] = { 0, 0, 0, 0, 0 };
 
 #define MAX_RETRY 5
 #define RETRY_DELAY 200
 
+int data[5] = { 0, 0, 0, 0, 0 };
+
 void read_dht_data(char *hostname, int interval, double retries){
     uint8_t laststate    = HIGH;
-    uint8_t counter        = 0;
+    uint8_t counter      = 0;
     uint8_t j            = 0, i;
 
     data[0] = data[1] = data[2] = data[3] = data[4] = 0;
@@ -61,14 +62,15 @@ void read_dht_data(char *hostname, int interval, double retries){
             j++;
         }
     }
-    /* Flush cache:
+
+    /* Flush stdout buffer:
      * This needs to be done before *anything* is written to STDOUT! */
     int status = setvbuf (stdout,
          /* buf  = */ NULL,
          /* mode = */ _IONBF, /* unbuffered */
          /* size = */ 0);
     if (status != 0){
-        perror ("setvbuf");
+        perror ("Error in setvbuf(): fail to flush stdout buffer.");
         exit (1);
     }
 
@@ -89,8 +91,6 @@ void read_dht_data(char *hostname, int interval, double retries){
         if ( data[2] & 0x80 ){
             c = -c;
         }
-        //float f = c * 1.8f + 32;
-        //printf( "Humidity = %.1f %% Temperature = %.1f *C (%.1f *F), retries: %d\n", h, c, f, retries);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_humi\" interval=%d N:%.2f\n", hostname, interval, h);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_temp\" interval=%d N:%.2f\n", hostname, interval, c);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_error\" interval=%d N:%.2f\n", hostname, interval, retries / MAX_RETRY);
@@ -99,13 +99,11 @@ void read_dht_data(char *hostname, int interval, double retries){
         delay(RETRY_DELAY);
         read_dht_data(hostname, interval, ++retries);
     } else {
-        //perror( "Data not good, skip\n" );
-        printf("PUTVAL \"%s/exec-dht/gauge-dht_error\" interval=%d N:1.0\n", hostname, interval);
+        printf("PUTVAL \"%s/exec-dht/gauge-dht_error\" interval=%d N:1.00\n", hostname, interval);
     }
 }
 
 int main( void ){
-    //printf( "DHT22 temperature/humidity test\n" );
     char *hostname = getenv("COLLECTD_HOSTNAME");
     int interval = atoi(getenv("COLLECTD_INTERVAL"));
 
