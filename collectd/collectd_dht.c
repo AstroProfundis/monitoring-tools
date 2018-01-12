@@ -7,6 +7,7 @@
  * Remember to add following configs to your types.db:
  * dht_humi                value:GAUGE:0:U
  * dht_temp                value:GAUGE:U:U
+ * dht_dewp                value:GAUGE:U:U
  * dht_error               value:GAUGE:0:U
  * */
 
@@ -91,8 +92,10 @@ void read_dht_data(char *hostname, int interval, double retries){
         if ( data[2] & 0x80 ){
             c = -c;
         }
+        float dewp = c - (100 - h) / 5;
         printf("PUTVAL \"%s/exec-dht/gauge-dht_humi\" interval=%d N:%.2f\n", hostname, interval, h);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_temp\" interval=%d N:%.2f\n", hostname, interval, c);
+        printf("PUTVAL \"%s/exec-dht/gauge-dht_dewp\" interval=%d N:%.2f\n", hostname, interval, dewp);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_error\" interval=%d N:%.2f\n", hostname, interval, retries / MAX_RETRY);
     } else if (retries < MAX_RETRY) {
         /* On reading errors, wait for some time and try again */
