@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 #include <wiringPi.h>
 
 #define MAX_TIMINGS 85
@@ -23,6 +24,16 @@
 #define RETRY_DELAY 200
 
 int data[5] = { 0, 0, 0, 0, 0 };
+
+float cal_dewpoint(float temp, float humi){
+    /* fomula and constants from https://en.wikipedia.org/wiki/Dew_point */
+    float b = 17.62;
+    float c = 243.12;  // C
+
+    float gamma = logf(humi / 100) + b * temp / (c + temp);
+    float tdewp = c * gamma / (b - gamma);
+    return tdewp;
+}
 
 void read_dht_data(char *hostname, int interval, double retries){
     uint8_t laststate    = HIGH;
@@ -92,7 +103,7 @@ void read_dht_data(char *hostname, int interval, double retries){
         if ( data[2] & 0x80 ){
             c = -c;
         }
-        float dewp = c - (100 - h) / 5;
+        float dewp = cal_dewpoint(c, h);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_humi\" interval=%d N:%.2f\n", hostname, interval, h);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_temp\" interval=%d N:%.2f\n", hostname, interval, c);
         printf("PUTVAL \"%s/exec-dht/gauge-dht_dewp\" interval=%d N:%.2f\n", hostname, interval, dewp);
