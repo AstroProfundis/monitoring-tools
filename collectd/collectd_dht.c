@@ -27,8 +27,8 @@ int data[5] = { 0, 0, 0, 0, 0 };
 
 float cal_dewpoint(float temp, float humi){
     /* fomula and constants from https://en.wikipedia.org/wiki/Dew_point */
-    float b = 17.62;
-    float c = 243.12;  // C
+    float b = 17.67;
+    float c = 243.5;  // C
 
     float gamma = logf(humi / 100) + b * temp / (c + temp);
     float tdewp = c * gamma / (b - gamma);
