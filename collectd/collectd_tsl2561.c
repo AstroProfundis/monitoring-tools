@@ -41,6 +41,11 @@ void read_tsl_data(char *hostname, int interval){
 
     if(tsl != NULL){
         long lux = tsl2561_lux(tsl);
+        if (lux < 800){ // force hight gain in dark
+            tsl2561_disable_autogain(tsl);
+            tsl2561_set_timing(tsl, TSL2561_INTEGRATION_TIME_402MS, TSL2561_GAIN_16X);
+            lux = tsl2561_lux(tsl);
+        }
 
         printf("PUTVAL \"%s/exec-tsl/gauge-tsl_lux\" interval=%d N:%ld\n", hostname, interval, lux);
 
