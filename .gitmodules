@@ -4,3 +4,6 @@
 [submodule "collectd/tsl2561"]
 	path = collectd/tsl2561
 	url = https://github.com/lexruee/tsl2561.git
+[submodule "refs/MAX44009"]
+	path = refs/MAX44009
+	url = https://github.com/ControlEverythingCommunity/MAX44009.git
