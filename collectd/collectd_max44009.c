@@ -15,7 +15,7 @@
 float get_lux(void){
     // Create I2C bus
     int file;
-    char *bus = "/dev/i2c-0";
+    char *bus = "/dev/i2c-1";
     if ((file = open(bus, O_RDWR)) < 0){
         printf("Failed to open the bus. \n");
         exit(1);
@@ -56,6 +56,16 @@ int main(void){
 
     while (1){
         float lux = get_lux();
+        /* Flush stdout buffer:
+         * This needs to be done before *anything* is written to STDOUT! */
+        int status = setvbuf (stdout,
+             /* buf  = */ NULL,
+             /* mode = */ _IONBF, /* unbuffered */
+             /* size = */ 0);
+        if (status != 0){
+            perror ("Error in setvbuf(): fail to flush stdout buffer.");
+            exit (1);
+        }
         printf("PUTVAL \"%s/exec-max44009/gauge-max44009_lux\" interval=%d N:%.2f\n", hostname, interval, lux);
         sleep(interval);
     }
