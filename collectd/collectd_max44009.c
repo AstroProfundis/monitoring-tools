@@ -24,12 +24,13 @@ float get_lux(void){
     ioctl(file, I2C_SLAVE, 0x4A);
 
     // Select configuration register(0x02)
-    // Continuous mode, Integration time = 800 ms(0x40)
     char config[2] = {0};
     config[0] = 0x02;
-    config[1] = 0x40;
+    // Manual mode, Integration time = 800 ms(0x40)
+    //config[1] = 0x40;
+    // Automatic mode
+    config[1] = 0x00;
     write(file, config, 2);
-    //sleep(1);
 
     // Read 2 bytes of data from register(0x03)
     // luminance MSB, luminance LSB
@@ -45,6 +46,7 @@ float get_lux(void){
         // Convert the data to lux
         int exponent = (data[0] & 0xF0) >> 4;
         int mantissa = ((data[0] & 0x0F) << 4) | (data[1] & 0x0F);
+        //printf("%d, %d\n", exponent, mantissa);
         luminance = pow(2, exponent) * mantissa * 0.045;
     }
     return luminance;
